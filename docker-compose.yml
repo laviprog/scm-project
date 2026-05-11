@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    image: scm-app:1.0.0
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./data/output:/app/data/output
+    networks:
+      - scm-network
+
+  postgres:
+    image: postgres:15
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - scm-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  scm-network:
+    name: scm-network
+    driver: bridge
