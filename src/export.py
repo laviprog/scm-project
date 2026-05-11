@@ -175,8 +175,8 @@ def _write_pivot_csv(
     for row in plan:
         values[(row.product_id, row.plan_date)] += getattr(row, metric)
 
-    with path.open("w", encoding="utf-8-sig", newline="") as file:
-        writer = csv.writer(file, delimiter=";")
+    with path.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.writer(file)
         writer.writerow(["Материал", *[day.isoformat() for day in dates]])
         for product_id in product_ids:
             writer.writerow(
@@ -199,7 +199,7 @@ def _sorted_plan_dates(plan: list[PlanRow]) -> list[date]:
 def _format_number(value: float, decimals: int) -> str:
     if decimals == 0:
         return str(round(value))
-    return f"{value:.{decimals}f}".replace(".", ",")
+    return f"{value:.{decimals}f}"
 
 
 def _date_range(start: date, end: date):
